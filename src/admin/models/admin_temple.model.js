@@ -14,6 +14,8 @@ export const createNewTempleModel = async (templeData) => {
     temple_type_id,
   } = templeData;
 
+  const parsedTempleTypeId = temple_type_id === "" || temple_type_id === "null" || temple_type_id === undefined ? null : temple_type_id;
+
   const [existingTemple] = await pool.execute(
     "SELECT * FROM temples WHERE temple_key = ?",
     [temple_key]
@@ -32,7 +34,7 @@ export const createNewTempleModel = async (templeData) => {
       s3_image_key || null,
       tagline || null,
       religion_id,
-      temple_type_id || null,
+      parsedTempleTypeId,
     ]
   );
   return {
@@ -121,6 +123,11 @@ export const updateTempleByIdModel = async (templeId, templeData) => {
     throw new BadRequestError("Temple not found");
   }
 
+  let updatedTempleTypeId = existingTemple[0].temple_type_id;
+  if (temple_type_id !== undefined) {
+    updatedTempleTypeId = temple_type_id === "" || temple_type_id === "null" ? null : temple_type_id;
+  }
+
   await pool.execute(
     "UPDATE temples SET temple_key = ?, temple_name = ?, temple_description = ?, location = ?, image_url = ?, s3_image_key = ?, tagline = ?, temple_type_id = ? WHERE id = ?",
     [
@@ -131,7 +138,7 @@ export const updateTempleByIdModel = async (templeId, templeData) => {
       image_url || existingTemple[0].image_url,
       s3_image_key || existingTemple[0].s3_image_key,
       tagline || existingTemple[0].tagline,
-      temple_type_id !== undefined ? temple_type_id : existingTemple[0].temple_type_id,
+      updatedTempleTypeId,
       templeId,
     ]
   );
@@ -145,6 +152,6 @@ export const updateTempleByIdModel = async (templeId, templeData) => {
     image_url: image_url || existingTemple[0].image_url,
     s3_image_key: s3_image_key || existingTemple[0].s3_image_key,
     tagline: tagline || existingTemple[0].tagline,
-    temple_type_id: temple_type_id !== undefined ? temple_type_id : existingTemple[0].temple_type_id,
+    temple_type_id: updatedTempleTypeId,
   };
 };

@@ -7,7 +7,7 @@ export const createNewTempleValidation = Joi.object({
   temple_description: Joi.string().min(2).max(5000).required(),
   location: Joi.string().min(3).max(100).required(),
   tagline: Joi.string().min(3).max(255).required(),
-  temple_type_id: Joi.number().integer().min(1).allow(null).optional(),
+  temple_type_id: Joi.alternatives().try(Joi.number().integer().min(1), Joi.string().valid('', 'null')).allow(null).optional(),
 });
 
 export const updateTempleValidation = Joi.object({
@@ -16,6 +16,6 @@ export const updateTempleValidation = Joi.object({
   temple_description: Joi.string().min(2).max(5000).optional(),
   location: Joi.string().min(3).max(100).optional(),
   tagline: Joi.string().min(3).max(255).optional(),
-  temple_type_id: Joi.number().integer().min(1).allow(null).optional(),
+  temple_type_id: Joi.alternatives().try(Joi.number().integer().min(1), Joi.string().valid('', 'null')).allow(null).optional(),
   religion_id: Joi.number().integer().min(1).optional(),
 });
